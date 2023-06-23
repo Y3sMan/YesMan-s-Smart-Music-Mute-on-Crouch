@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+<spring_table>
+    <string id="ui_mcm_menu_ym_smart_music_mute">
+        <text>Smart Music Mute</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_key_bind_toggle">
+        <text>Mute Music</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_key__bind_toggle_descr">
+        <text>Toggle the in-game music.</text>
+    </string>
+</spring_table>

@@ -3,6 +3,7 @@ function on_game_start()
     RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
     RegisterScriptCallback("ym_actor_on_crouch_down", ym_actor_on_crouch_down)
     RegisterScriptCallback("ym_actor_on_crouch_up", ym_actor_on_crouch_up)
+    RegisterScriptCallback("on_key_release", yesman_on_key_release)
 end
 
 
@@ -11,6 +12,7 @@ local is_first_crouch = false
 local is_changing_volume = false
 local tg_update = 0
 local tg_update_step = 1000 --[ms]
+ym_music_mute = false
 
 local DEBUG = true
 
@@ -32,6 +34,11 @@ end
 
 function actor_on_update()
     -- dbg_printn("on_update_test loaded")
+    -- manual music mute toggle overrides the smart behavior
+    if ym_music_mute then
+        return
+    end
+
     if (IsMoveState("mcCrouch") ) then
         user_music_volume = get_console_cmd(2, 'snd_volume_music') --- regrab it just incase the user changed it during the game
         -- SendScriptCallback("ym_actor_on_crouch_down", 1)
@@ -146,4 +153,19 @@ function ym_decrement_music_vol()
         level.set_music_volume(currentVol)
     end
 
+end
+
+-- mute toggle
+function yesman_on_key_release(key)
+    if (key == ym_smart_crouch_music_mcm.KEY_MUTE_VOL) then
+        if not ym_music_mute then
+            printf("Mute is on")
+            level.set_music_volume(0)
+            ym_music_mute = true 
+        else
+            printf("Mute is off")
+            level.set_music_volume(user_music_volume)
+            ym_music_mute = false
+        end         
+    end
 end
