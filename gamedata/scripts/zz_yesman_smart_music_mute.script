@@ -1,0 +1,80 @@
+function on_game_start()
+    RegisterScriptCallback("actor_on_update", actor_on_update)
+    RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
+    RegisterScriptCallback("actor_on_crouch_down", actor_on_crouch_down)
+    RegisterScriptCallback("actor_on_crouch_up", actor_on_crouch_up)
+end
+
+
+
+AddScriptCallback("actor_on_crouch_down")
+AddScriptCallback("actor_on_crouch_up")
+
+
+local user_music_volume = 0
+function actor_on_first_update()
+    printf("YesMan's Smart Music Mute Loaded")
+    user_music_volume = get_console_cmd(2, 'snd_volume_music') --- user's default music volume
+end
+
+local crouching_flag = false
+function actor_on_update()
+    -- news_manager.send_tip(db.actor, "on_update_test loaded", nil, nil, 3)
+    if (IsMoveState("mcCrouch") ) then
+        user_music_volume = get_console_cmd(2, 'snd_volume_music') --- regrab it just incase the user changed it during the game
+        SendScriptCallback("actor_on_crouch_down", 1)
+    elseif crouching_flag then
+        SendScriptCallback("actor_on_crouch_up", 1)
+    end
+end
+
+local tg_update = 0
+local tg_update_step = 1000 --[ms]
+function actor_on_crouch_down(flag)
+    if not crouching_flag then
+        level.set_music_volume(user_music_volume / 2)
+        crouching_flag = true
+    end
+
+    -- printf("first crouch down")
+    -- level.set_music_volume(user_music_volume / 2)
+    local loopVol = level.get_music_volume()
+
+    local tg = time_global()
+    if (tg < tg_update) then
+        return
+    end
+    tg_update = tg + tg_update_step
+    if loopVol > 0.000 then
+        loopVol = loopVol - .1
+        -- news_manager.send_tip(db.actor, loopVol, nil, nil, 3)
+        -- printf(loopVol)
+        level.set_music_volume(loopVol)
+        -- news_manager.send_tip(db.actor, "crouch update", nil, nil, 3)
+    end
+    
+end
+
+function actor_on_crouch_up(flag)
+    -- printf("first crouch up")
+    local loopVol = level.get_music_volume()
+    -- printf("user music vol is %s", user_music_volume)
+    -- printf("level.get_music_vol is %s", level.get_music_volume())
+
+    local tg = time_global()
+    if (tg < tg_update) then
+        return
+    end
+    tg_update = tg + tg_update_step
+    if loopVol < user_music_volume then
+        loopVol = loopVol + .1
+        -- news_manager.send_tip(db.actor, loopVol, nil, nil, 3)
+        -- printf(loopVol)
+        level.set_music_volume(loopVol)
+    else 
+        crouching_flag = false
+
+    end
+
+    
+end
