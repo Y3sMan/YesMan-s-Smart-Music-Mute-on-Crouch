@@ -3,10 +3,37 @@
     <string id="ui_mcm_menu_ym_smart_music_mute">
         <text>Smart Music Mute</text>
     </string>
+    <string id="ui_mcm_ym_smart_music_mute_base_desc"> 
+        <text>How It Works:
+        \n\n When you first crouch, the mod will decrease the music volume by the Initial Volume Drop, then decrease by the Rate of Change until the music is 0.
+        \n During this, if you don't stand up yet, a timer will count up behind the scenes. The longer you are crouched, the more time it acrues. 
+        \n When you stand back up, this time will start counting back down; the music volume will not start to turn back up until the timer reaches 0.
+        The idea being that, if you are crouched for a long period of time, you are trying to be sneaky, and want the music to stay silent, even if you stand back up to get into a firefight.
+        </text>
+    </string>
     <string id="ui_mcm_ym_smart_music_mute_key_bind_toggle">
         <text>Mute Music</text>
     </string>
-    <string id="ui_mcm_ym_smart_music_mute_key__bind_toggle_descr">
+    <string id="ui_mcm_ym_smart_music_mute_key_bind_toggle_desc">
         <text>Toggle the in-game music.</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_initial_vol_dampen">
+        <text>Initial Volume Drop</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_initial_vol_dampen_desc">
+        <text>When you first crouch, lower volume by this percentage amount.
+        \n\nSetting to 1 will make volume mute as soon as you crouch.
+        </text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_rate_of_change">
+        <text>Rate of Change</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_rate_of_change_desc">
+        <text>Amount of volume per second that the volume with decrease.
+            \n\n%c[d_green]--%c[DEFAULT] Maximum volume is 1.0, and the minimum is 0.0
+            \n\n%c[d_green]--%c[DEFAULT] From volume 1.0, if you set the rate of change to 0.1, it will take 10 seconds to decrease the volume to 0.0
+            \n\n%c[d_red]--%c[DEFAULT] If you set it to 1, music will mute as soon as you crouch
+            \n\n%c[d_red]--%c[DEFAULT] If you set it to 0, the rate of change will be disabled. %c[d_red]Only the Initial Volume Drop will affect the volume after that. 
+        </text>
     </string>
 </spring_table>
