@@ -1,3 +1,11 @@
+--[[
+	Author: YesMan
+	Version: 1.0
+    Credits: RavenAscendant - for making MCM
+
+    Created: 06-24-2023
+    Last edit: 06-24-2023
+]]--
 function on_game_start()
     RegisterScriptCallback("actor_on_update", actor_on_update)
     RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
