@@ -7,12 +7,20 @@ function on_game_start()
 end
 
 
-local YM_MUSIC_CROUCH_TIMER = 0
+--[[ YM_MUSIC_CROUCH_TIMER controls how long to hold off on incrementing the
+volume back to normal
+--]]
+
+local YM_MUSIC_CROUCH_TIMER = 0  
 local is_first_crouch = false
 local is_changing_volume = false
 local tg_update = 0
 local tg_update_step = 1000 --[ms]
-ym_music_mute = false
+ym_music_mute = false -- global for the manual mute toggle
+ym_music_mute_initial_vol_dampen_percent = 50 -- this is a percentage -- mcm value
+ym_music_mute_rate_of_change = 0.1 -- 1 volume unit per second; if you are at full, 1.0, volume, it will take 10 seconds to get to 0 
+
+
 
 local DEBUG = true
 
@@ -45,8 +53,7 @@ function actor_on_update()
         -- first crouch down
         if not is_first_crouch then
             if not is_changing_volume then
-                level.set_music_volume(user_music_volume / 2)
-                -- YM_MUSIC_CROUCH_TIMER = math.ceil( (user_music_volume / 2) *1000 )
+                level.set_music_volume(user_music_volume * (ym_music_mute_initial_vol_dampen_percent / 100))
                 YM_MUSIC_CROUCH_TIMER = 0
             end
 
@@ -65,33 +72,45 @@ function actor_on_update()
     end
 
 
+    -- if the timer isn't 0, basically
     if is_changing_volume then
+        -- if crouching
         if is_first_crouch then
+            -- decrement volume
             ym_decrement_music_vol() 
+            -- cap the timer out 
             if YM_MUSIC_CROUCH_TIMER < 10000 then
+                -- but establish a min for the timer, to double increment the timer in this time range
+                if YM_MUSIC_CROUCH_TIMER > 3000 then
+                    YM_MUSIC_CROUCH_TIMER = YM_MUSIC_CROUCH_TIMER + 1 -- once you get past a certain point, time increases at double the rate
+                end
                 YM_MUSIC_CROUCH_TIMER = YM_MUSIC_CROUCH_TIMER + 1
             end
         else
+            -- when timer runs out
             if YM_MUSIC_CROUCH_TIMER <= 0.000 then
-                ym_increment_music_vol()
+                -- if the rate of change isn't 0, increment the volume
+                if ym_music_mute_rate_of_change > 0.00 then
+                    ym_increment_music_vol()
+                else
+                    -- else just reset the volume
+                    level.set_music_volume(user_music_volume)
+                end
             else
+                -- decrement the timer
                 YM_MUSIC_CROUCH_TIMER = YM_MUSIC_CROUCH_TIMER - 1
             end
         end
 
+        -- if current volume is different than the setting's reported value
         if math.ceil( level.get_music_volume() ) < math.ceil( user_music_volume ) then
             is_changing_volume = true
+        -- if the two values are the same, stop the mod and return to normal
         elseif math.ceil(level.get_music_volume() * 10) >= math.ceil(user_music_volume * 10) and (YM_MUSIC_CROUCH_TIMER <= 0.000) then
             YM_MUSIC_CROUCH_TIMER = 0
             is_changing_volume = false
             printf("!is_changing_volume is false!")
         end
-
-        -- if YM_MUSIC_CROUCH_TIMER <= 0.000 then
-        --     YM_MUSIC_CROUCH_TIMER = 0
-        --     is_changing_volume = false
-        --     printf("!is_changing_volume is false!")
-        -- end
     end
 
 
@@ -100,31 +119,31 @@ function actor_on_update()
     dbg_printn("!Max Vol:")
     dbg_printn(math.ceil( user_music_volume * 10))
     dbg_printn("TIMER:")
-    news_manager.send_tip(db.actor, YM_MUSIC_CROUCH_TIMER, nil, nil, 3)
+    dbg_printn(YM_MUSIC_CROUCH_TIMER)
 end
 
 
-function ym_actor_on_crouch_down(flag)
-    -- first crouch down
-    if not is_first_crouch then
-        if not is_changing_volume then
-            level.set_music_volume(user_music_volume / 2)
-        end
+-- function ym_actor_on_crouch_down(flag)
+--     -- first crouch down
+--     if not is_first_crouch then
+--         if not is_changing_volume then
+--             level.set_music_volume(user_music_volume / 2)
+--         end
 
-        dbg_printn("first crouch down")
-        is_first_crouch = true
-        is_changing_volume = true
-    end
-end
+--         dbg_printn("first crouch down")
+--         is_first_crouch = true
+--         is_changing_volume = true
+--     end
+-- end
 
 
-function ym_actor_on_crouch_up(flag)
-    -- first crouch up
-    if is_first_crouch then
-        dbg_printn("first crouch up")
-        is_first_crouch = false
-    end
-end
+-- function ym_actor_on_crouch_up(flag)
+--     -- first crouch up
+--     if is_first_crouch then
+--         dbg_printn("first crouch up")
+--         is_first_crouch = false
+--     end
+-- end
 
 function ym_increment_music_vol()
     local tg = time_global()
@@ -135,8 +154,8 @@ function ym_increment_music_vol()
 
     local currentVol = level.get_music_volume()
     if (currentVol < user_music_volume) then 
-        local newvol = currentVol + 0.1
-        level.set_music_volume(newvol)
+        currentVol = currentVol + ym_music_mute_rate_of_change
+        level.set_music_volume(currentVol)
     end
 end
 
@@ -149,7 +168,7 @@ function ym_decrement_music_vol()
 
     local currentVol = level.get_music_volume()
     if (currentVol > 0.000) then 
-        currentVol = currentVol - 0.1
+        currentVol = currentVol - ym_music_mute_rate_of_change
         level.set_music_volume(currentVol)
     end
 
