@@ -29,6 +29,8 @@ function on_mcm_load()
             {id = "title", type = "slide", link = "ui_options_slider_player", text = "ui_mcm_menu_" .. mcm_id, size = {512, 50}, spacing = 20},
 			{id = "base_description", type = "desc", text="ui_mcm_" .. mcm_id .. "_base_desc"},
             {id = "key_bind_toggle", type = "key_bind", val = 2, def = KEY_MUTE_VOL},
+			{id = "initial_vol_dampen", type="track", val=2, step=1, min=1, max=100, def=main_script.ym_music_mute_initial_vol_dampen_percent},
+			{id = "rate_of_change", type="track", val=2,step=0.1, min=0.00, max=1.0, def=main_script.ym_music_mute_rate_of_change},
 			{id = "combat_mute", type="check", val = 1, def=main_script.ym_music_mute_combat_mute}
             -- LuaFormatter on
         }
