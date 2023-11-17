@@ -4,18 +4,19 @@
     Credits: RavenAscendant - for making MCM
 
     Created: 06-24-2023
-    Last edit: 06-24-2023
+    Last edit: 10-28-2023
 ]]--
 function on_game_start()
     RegisterScriptCallback("actor_on_update", actor_on_update)
     RegisterScriptCallback("actor_on_first_update", actor_on_first_update)
-    RegisterScriptCallback("ym_actor_on_crouch_down", ym_actor_on_crouch_down)
-    RegisterScriptCallback("ym_actor_on_crouch_up", ym_actor_on_crouch_up)
-    RegisterScriptCallback("on_key_release", yesman_on_key_release)
+    -- RegisterScriptCallback("ym_actor_on_crouch_down", ym_actor_on_crouch_down)
+    -- RegisterScriptCallback("ym_actor_on_crouch_up", ym_actor_on_crouch_up)
+    RegisterScriptCallback("on_key_release", yesman_on_key_release)  -- for the mute toggle
 end
 
 
---[[ YM_MUSIC_CROUCH_TIMER controls how long to hold off on incrementing the
+--[[ 
+    YM_MUSIC_CROUCH_TIMER controls how long to hold off on incrementing the
 volume back to normal
 --]]
 
@@ -31,53 +32,60 @@ ym_music_mute_combat_mute = false
 
 
 
-local DEBUG = true
+local DEBUG = false
 
-AddScriptCallback("ym_actor_on_crouch_down")
-AddScriptCallback("ym_actor_on_crouch_up")
+-- AddScriptCallback("ym_actor_on_crouch_down")
+-- AddScriptCallback("ym_actor_on_crouch_up")
 
 local function dbg_printn(message)
     if DEBUG then
+        xr_sound.set_sound_play(db.actor, "pda_tips")
         news_manager.send_tip(db.actor, message, nil, nil, 3)
     end
 end
 
+local function console_print(message)
+    printf("!Smart Music Mute: %s", message)
+end
 
 local user_music_volume = 0
+-- Get user's initial, default music volume
 function actor_on_first_update()
-    printf("YesMan's Smart Music Mute Loaded")
+    printf("---------------YesMan's Smart Music Mute Loaded-----------------")
     user_music_volume = get_console_cmd(2, 'snd_volume_music') --- user's default music volume
 end
 
 function actor_on_update()
     -- dbg_printn("on_update_test loaded")
-    -- manual music mute toggle overrides the smart behavior
+    ---- manual music mute toggle overrides the smart behavior
     if ym_music_mute then
         return
     end
+    user_music_volume = get_console_cmd(2, 'snd_volume_music') --- regrab it just incase the user changed it during the game
 
+    -- calls for every frame the player is crouching
     if (IsMoveState("mcCrouch") ) then
-        user_music_volume = get_console_cmd(2, 'snd_volume_music') --- regrab it just incase the user changed it during the game
         -- SendScriptCallback("ym_actor_on_crouch_down", 1)
-        -- first crouch down
+        -- checks for the first frames of crouching, the first crouch down
         if not is_first_crouch then
             if not is_changing_volume then
                 level.set_music_volume(user_music_volume * (ym_music_mute_initial_vol_dampen_percent / 100))
                 YM_MUSIC_CROUCH_TIMER = 0
             end
 
+            -- first crouch down
+            console_print("Volume Decreasing")
             dbg_printn("first crouch down")
             is_first_crouch = true
             is_changing_volume = true
         end
+    -- first crouch up
     elseif is_first_crouch then
-        printf("!sending ym_actor_on_crouch_up")
+        -- printf("!sending ym_actor_on_crouch_up")
         -- SendScriptCallback("ym_actor_on_crouch_up", 1)
-        -- first crouch up
-        if is_first_crouch then
+        console_print("Volume Increasing")
             dbg_printn("first crouch up")
             is_first_crouch = false
-        end
     end
 
 
@@ -118,7 +126,7 @@ function actor_on_update()
         elseif math.ceil(level.get_music_volume() * 10) >= math.ceil(user_music_volume * 10) and (YM_MUSIC_CROUCH_TIMER <= 0.000) then
             YM_MUSIC_CROUCH_TIMER = 0
             is_changing_volume = false
-            printf("!is_changing_volume is false!")
+            -- printf("!is_changing_volume is false!")
         end
     end
 
@@ -201,11 +209,11 @@ end
 function yesman_on_key_release(key)
     if (key == ym_smart_crouch_music_mcm.KEY_MUTE_VOL) then
         if not ym_music_mute then
-            printf("Mute is on")
+            console_print("Mute is on")
             level.set_music_volume(0)
             ym_music_mute = true 
         else
-            printf("Mute is off")
+            console_print("Mute is off")
             level.set_music_volume(user_music_volume)
             ym_music_mute = false
         end         
