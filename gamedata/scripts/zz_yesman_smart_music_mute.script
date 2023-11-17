@@ -27,6 +27,7 @@ local tg_update_step = 1000 --[ms]
 ym_music_mute = false -- global for the manual mute toggle
 ym_music_mute_initial_vol_dampen_percent = 50 -- this is a percentage -- mcm value
 ym_music_mute_rate_of_change = 0.1 -- 1 volume unit per second; if you are at full, 1.0, volume, it will take 10 seconds to get to 0 
+ym_music_mute_combat_mute = false
 
 
 
@@ -122,10 +123,24 @@ function actor_on_update()
     end
 
 
-    dbg_printn("!Current Vol:")
-    dbg_printn(math.ceil( level.get_music_volume() *10 ))
+    -- player is in combat
+    -- if not (is_empty(xr_combat_ignore.fighting_with_actor_npcs)) and ym_music_mute_combat_mute then
+    if not (is_empty(xr_combat_ignore.fighting_with_actor_npcs)) and ym_music_mute_combat_mute then
+        -- printf("Player is in combat")
+        if YM_MUSIC_CROUCH_TIMER <= 0.00 then
+            console_print("Player is in combat; decreasing volume")
+        end
+        is_changing_volume = true
+        YM_MUSIC_CROUCH_TIMER = 5000
+        -- level.set_music_volume(0)
+        ym_decrement_music_vol() 
+    end
+
+    dbg_printn("-------Smart Music Mute DEBUG:---------------")
     dbg_printn("!Max Vol:")
     dbg_printn(math.ceil( user_music_volume * 10))
+    dbg_printn("!Current Vol:")
+    dbg_printn(math.ceil( level.get_music_volume() *10 ))
     dbg_printn("TIMER:")
     dbg_printn(YM_MUSIC_CROUCH_TIMER)
 end

@@ -36,4 +36,10 @@
             \n\n%c[d_red]--%c[DEFAULT] If you set it to 0, the rate of change will be disabled. %c[d_red]Only the Initial Volume Drop will affect the volume after that. 
         </text>
     </string>
+    <string id="ui_mcm_ym_smart_music_mute_combat_mute">
+        <text>Combat Mute</text>
+    </string>
+    <string id="ui_mcm_ym_smart_music_mute_combat_mute_desc">
+        <text>Mute music upon entering combat.</text>
+    </string>
 </spring_table>
