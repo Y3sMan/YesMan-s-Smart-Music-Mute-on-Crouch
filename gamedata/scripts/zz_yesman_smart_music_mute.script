@@ -69,7 +69,7 @@ function actor_on_update()
         -- checks for the first frames of crouching, the first crouch down
         if not is_first_crouch then
             if not is_changing_volume then
-                level.set_music_volume(user_music_volume * (ym_music_mute_initial_vol_dampen_percent / 100))
+                level.set_music_volume(user_music_volume * (( 100 - ym_music_mute_initial_vol_dampen_percent ) / 100)) -- decrease music volume by the user's mcm settting; it is a percentage, and needs to be converted
                 YM_MUSIC_CROUCH_TIMER = 0
             end
 
