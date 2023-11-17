@@ -17,7 +17,7 @@ end
 
 --[[ 
     YM_MUSIC_CROUCH_TIMER controls how long to hold off on incrementing the
-volume back to normal
+    volume back to normal
 --]]
 
 local YM_MUSIC_CROUCH_TIMER = 0  
@@ -84,8 +84,8 @@ function actor_on_update()
         -- printf("!sending ym_actor_on_crouch_up")
         -- SendScriptCallback("ym_actor_on_crouch_up", 1)
         console_print("Volume Increasing")
-            dbg_printn("first crouch up")
-            is_first_crouch = false
+        dbg_printn("first crouch up")
+        is_first_crouch = false
     end
 
 
